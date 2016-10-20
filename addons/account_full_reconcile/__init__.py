@@ -32,8 +32,8 @@ def _migrate_full_reconcile(cr, registry):
             self.credit = db_record[5]
             self.currency_id = db_record[6]
             self.date = db_record[7]
-            self.rounding = db_record[8]
-            self.amount_residual = 0.0  # Not in 8.0
+            self.amount_residual = db_record[8]
+            self.rounding = db_record[9]
             self.amount_residual_currency = 0.0  # Not in 8.0
 
     def reconcile_records(cr, debit_record, credit_record, full_reconcile_id):
@@ -166,8 +166,8 @@ def _migrate_full_reconcile(cr, registry):
             aml.credit,
             aml.currency_id,
             aml.date AS date,
-            cur.rounding AS rounding
             aml.debit - aml.credit AS amount_residual,
+            cur.rounding AS rounding
         FROM account_move_line aml
         JOIN res_company com on aml.company_id = com.id
         JOIN res_currency cur on com.currency_id = cur.id
