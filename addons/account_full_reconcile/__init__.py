@@ -39,6 +39,7 @@ def _migrate_full_reconcile(cr, registry):
     def reconcile_records(cr, debit_record, credit_record, full_reconcile_id):
         """Links a credit and debit line through partial reconciliation."""
         amount = min(debit_record.debit, credit_record.credit)
+        amount_currency = 0
         cr.execute(
             """
             INSERT INTO account_partial_reconcile (
@@ -52,11 +53,12 @@ def _migrate_full_reconcile(cr, registry):
                 write_date,
                 write_uid
             )
-            VALUES(%s, %s, %s, %s,
+            VALUES(%s, %s, %s, %s, %s,
                    CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s)
             """,
             params=(
                 amount,
+                amount_currency,
                 credit_record.id,
                 debit_record.id,
                 full_reconcile_id or None,
@@ -107,6 +109,9 @@ def _migrate_full_reconcile(cr, registry):
                 params=(
                     float_round(
                         line.amount_residual,
+                        precision_rounding=line.rounding
+                    ),
+                    float_round(
                         line.amount_residual_currency,
                         precision_rounding=line.rounding
                     ),
@@ -118,6 +123,8 @@ def _migrate_full_reconcile(cr, registry):
     def handle_complete_reconciliation(cr, debit_lines, credit_lines):
         """Each time a move line has another reconcile id, we can
         migrate the 8.0 reconciliation in full."""
+        if not debit_lines or not credit_lines:
+            return
         record = debit_lines[0]
         full_reconcile_id = (
             record.full_reconcile and
