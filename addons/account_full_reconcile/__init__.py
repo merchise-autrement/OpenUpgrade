@@ -93,13 +93,14 @@ def _migrate_full_reconcile(cr, registry):
         )
         return cr.fetchone()[0]
 
-    def update_amount_residual(cr, move_lines):
-        """Update amount residual in move lines."""
+    def update_account_move_line(cr, move_lines, full_reconcile_id):
+        """Update move lines."""
         # TODO: compute amount_currency
         for line in move_lines:
             cr.execute(
                 """
                 UPDATE account_move_line SET
+                    full_reconcile_id = %s,
                     amount_residual = %s,
                     amount_residual_currency = %s,
                     write_date = CURRENT_TIMESTAMP,
@@ -107,6 +108,7 @@ def _migrate_full_reconcile(cr, registry):
                 WHERE id = %s
                 """,
                 params=(
+                    full_reconcile_id or None,
                     float_round(
                         line.amount_residual,
                         precision_rounding=line.rounding
@@ -157,8 +159,8 @@ def _migrate_full_reconcile(cr, registry):
             if credit_record.amount_residual <= 0:
                 current_credit += 1
         # Update amount residual in reconciled records:
-        update_amount_residual(cr, debit_lines)
-        update_amount_residual(cr, credit_lines)
+        update_account_move_line(cr, debit_lines, full_reconcile_id)
+        update_account_move_line(cr, credit_lines, full_reconcile_id)
 
     cr.execute(
         """
