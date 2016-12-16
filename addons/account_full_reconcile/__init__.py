@@ -134,7 +134,7 @@ def _migrate_full_reconcile(cr, registry):
                     ),
                     float_round(
                         line.amount_residual_currency,
-                        precision_rounding=line.line_currency_rounding
+                        precision_rounding=line.company_currency_rounding
                     ),
                     reconciled,
                     SUPERUSER_ID,
@@ -154,7 +154,7 @@ def _migrate_full_reconcile(cr, registry):
             False
         )
         # 1. Reconcile equal amounts:
-        for debit_record in debit_lines:company_currency_
+        for debit_record in debit_lines:
             for credit_record in credit_lines:
                 if debit_record.debit == credit_record.credit:
                     reconcile_records(
@@ -187,7 +187,11 @@ def _migrate_full_reconcile(cr, registry):
     def result_iter(cursor, arraysize=1024):
         'An iterator that uses fetchmany to keep memory usage down'
         while True:
-            results = cursor.fetchmany(arraysize)
+            try:
+                results = cursor.fetchmany(arraysize)
+            except:
+                # Assume no more rows to fetch
+                break
             if not results:
                 break
             for result in results:
