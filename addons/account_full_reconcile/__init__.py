@@ -120,7 +120,6 @@ def _migrate_full_reconcile(cr, registry):
             cr.execute(
                 """
                 UPDATE account_move_line SET
-                    full_reconcile_id = %s,
                     amount_residual = %s,
                     amount_residual_currency = %s,
                     reconciled = %s,
@@ -129,14 +128,13 @@ def _migrate_full_reconcile(cr, registry):
                 WHERE id = %s
                 """,
                 params=(
-                    full_reconcile_id or None,
                     float_round(
                         line.amount_residual,
-                        precision_rounding=line.rounding
+                        precision_rounding=line.company_currency_rounding
                     ),
                     float_round(
                         line.amount_residual_currency,
-                        precision_rounding=line.rounding
+                        precision_rounding=line.line_currency_rounding
                     ),
                     reconciled,
                     SUPERUSER_ID,
@@ -156,7 +154,7 @@ def _migrate_full_reconcile(cr, registry):
             False
         )
         # 1. Reconcile equal amounts:
-        for debit_record in debit_lines:
+        for debit_record in debit_lines:company_currency_
             for credit_record in credit_lines:
                 if debit_record.debit == credit_record.credit:
                     reconcile_records(
@@ -172,13 +170,13 @@ def _migrate_full_reconcile(cr, registry):
             debit_record = debit_lines[current_debit]
             credit_record = credit_lines[current_credit]
             if (debit_record.amount_residual > 0 and
-                    credit_record.amount_residual > 0):
+                    credit_record.amount_residual < 0):
                 reconcile_records(
                     cr, debit_record, credit_record, full_reconcile_id
                 )
             if debit_record.amount_residual <= 0:
                 current_debit += 1
-            if credit_record.amount_residual <= 0:
+            if credit_record.amount_residual >= 0:
                 current_credit += 1
         # Update amount residual in reconciled records:
         update_account_move_line(cr, debit_lines, full_reconcile_id)
@@ -213,13 +211,15 @@ def _migrate_full_reconcile(cr, registry):
             aml.date AS date,
             aml.debit - aml.credit AS amount_residual,
             aml.currency_id as line_currency_id,
-            line_cur.rounding AS line_currency_rounding
+            line_cur.rounding AS line_currency_rounding,
             com.currency_id as company_currency_id,
             company_cur.rounding AS company_currency_rounding
         FROM account_move_line aml
         JOIN res_company com on aml.company_id = com.id
-        JOIN res_currency line_cur on aml.currency_id = line_cur.id
-        JOIN res_currency company_cur on com.currency_id = company_cur.id
+        LEFT OUTER JOIN res_currency line_cur
+            ON aml.currency_id = line_cur.id
+        LEFT OUTER JOIN res_currency company_cur
+            ON com.currency_id = company_cur.id
         WHERE aml.reconcile_id IS NOT NULL
            OR aml.reconcile_partial_id IS NOT NULL
         ORDER BY
@@ -237,10 +237,8 @@ def _migrate_full_reconcile(cr, registry):
             credit_lines = []  # Reset
         current_id = record.combined_reconcile_id
         if record.credit:
-            record.amount_residual = record.credit
             credit_lines.append(record)
         else:
-            record.amount_residual = record.debit
             debit_lines.append(record)
     # Do remaining bunch of records:
     if current_id:
