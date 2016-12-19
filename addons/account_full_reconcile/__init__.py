@@ -10,7 +10,7 @@ def _migrate_full_reconcile(cr, registry):
     """Migrate account.move.reconcile to account.partial.reconcile and
     account.full.reconcile.
 
-    TODO: Look into amount_residual_currency and foreign exchange writeoff.
+    TODO: Look into foreign exchange writeoff.
     """
     # avoid doing anything if the table has already something in it
     # (already migrated)
@@ -31,38 +31,57 @@ def _migrate_full_reconcile(cr, registry):
             self.credit = db_record[5]
             self.date = db_record[6]
             self.amount_residual = db_record[7]  # Start off with full amount
+            self.balance = db_record[7]  # Start off with full amount
             self.line_currency_id = db_record[8]
             self.line_currency_rounding = db_record[9]
             self.company_currency_id = db_record[10]
             self.company_currency_rounding = db_record[11]
-            self.amount_residual_currency = 0.0  # Not in 8.0
+            self.amount_currency = db_record[12]
+            self.company_id = db_record[13]
+            self.amount_residual_currency = self.amount_currency
 
     def reconcile_records(cr, debit_record, credit_record, full_reconcile_id):
         """Links a credit and debit line through partial reconciliation."""
         amount = min(debit_record.debit, credit_record.credit)
+        currency_id = False
+        rate = 1.0
         amount_currency = 0
+        if debit_record.line_currency_id and debit_record.amount_currency:
+            currency_id = debit_record.line_currency_id
+            rate = abs(debit_record.balance / amount_currency)
+            amount_currency = amount * rate
+        else:
+            if credit_record.line_currency_id and \
+                    credit_record.amount_currency:
+                currency_id = credit_record.line_currency_id
+                rate = abs(credit_record.balance / amount_currency)
+                amount_currency = amount * rate
         cr.execute(
             """
             INSERT INTO account_partial_reconcile (
                 amount,
                 amount_currency,
+                currency_id,
                 credit_move_id,
                 debit_move_id,
                 full_reconcile_id,
+                company_id,
                 create_date,
                 create_uid,
                 write_date,
                 write_uid
             )
-            VALUES(%s, %s, %s, %s, %s,
+            VALUES(%s, %s, %s, %s, %s, %s,
                    CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s)
             """,
             params=(
                 amount,
                 amount_currency,
+                currency_id or None,
                 credit_record.id,
                 debit_record.id,
                 full_reconcile_id or None,
+                debit_record.company_id or None,
                 SUPERUSER_ID,
                 SUPERUSER_ID
             )
@@ -96,7 +115,6 @@ def _migrate_full_reconcile(cr, registry):
 
     def update_account_move_line(cr, move_lines, full_reconcile_id):
         """Update move lines."""
-        # TODO: compute amount_currency
         for line in move_lines:
             # Compute reconciled similar to what happens in model, but using
             # data retrieved using SQL:
@@ -161,12 +179,12 @@ def _migrate_full_reconcile(cr, registry):
                         cr, debit_record, credit_record, full_reconcile_id
                     )
                     break
-        # 4. Reconcile unequal amounts:
+        # 2. Reconcile unequal amounts:
         current_debit = 0
         current_credit = 0
         last_debit = len(debit_lines) - 1
         last_credit = len(credit_lines) - 1
-        while current_debit <= last_debit and current_credit <= last_credit:
+        while current_debit <= last_debit or current_credit <= last_credit:
             debit_record = debit_lines[current_debit]
             credit_record = credit_lines[current_credit]
             if (debit_record.amount_residual > 0 and
@@ -218,6 +236,8 @@ def _migrate_full_reconcile(cr, registry):
             line_cur.rounding AS line_currency_rounding,
             com.currency_id as company_currency_id,
             company_cur.rounding AS company_currency_rounding
+            aml.amount_currency as amount_currency,
+            aml.company_id,
         FROM account_move_line aml
         JOIN res_company com on aml.company_id = com.id
         LEFT OUTER JOIN res_currency line_cur
