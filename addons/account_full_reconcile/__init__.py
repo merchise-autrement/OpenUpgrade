@@ -71,7 +71,7 @@ def _migrate_full_reconcile(cr, registry):
                 write_date,
                 write_uid
             )
-            VALUES(%s, %s, %s, %s, %s, %s,
+            VALUES(%s, %s, %s, %s, %s, %s, %s,
                    CURRENT_TIMESTAMP, %s, CURRENT_TIMESTAMP, %s)
             """,
             params=(
