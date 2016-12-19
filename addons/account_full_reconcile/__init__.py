@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
+import logging
 from openerp import SUPERUSER_ID
 from openerp.tools.float_utils import float_round, float_is_zero
 
 import models
+
+
+_logger = logging.getLogger(__name__)
 
 
 def _migrate_full_reconcile(cr, registry):
@@ -195,12 +199,28 @@ def _migrate_full_reconcile(cr, registry):
             if current_debit == last_debit and current_credit == last_credit:
                 # Nothing more to reconcile
                 break
+            unexpected_data = True
             if debit_record.amount_residual <= 0 and \
                     current_debit < last_debit:
                 current_debit += 1
+                unexpected_data = False
             if credit_record.amount_residual >= 0 and \
                     current_credit < last_credit:
                 current_credit += 1
+                unexpected_data = False
+            if unexpected_data:
+                # guard against endless loop due to unexpected/wrong data:
+                # could be caused by credit line with amount_residual > 0
+                # or debit_line with amount_residual < 0.
+                _logger.error(
+                    "Unexpected data prevented reconcile of lines,"
+                    " debit_line=%s, credit_line=%s" %
+                    (debit_record, credit_record)
+                )
+                if current_debit < last_debit:
+                    current_debit += 1
+                if current_credit < last_credit:
+                    current_credit += 1
         # Update amount residual in reconciled records:
         update_account_move_line(cr, debit_lines, full_reconcile_id)
         update_account_move_line(cr, credit_lines, full_reconcile_id)
