@@ -184,7 +184,7 @@ def _migrate_full_reconcile(cr, registry):
         current_credit = 0
         last_debit = len(debit_lines) - 1
         last_credit = len(credit_lines) - 1
-        while current_debit <= last_debit or current_credit <= last_credit:
+        while True:
             debit_record = debit_lines[current_debit]
             credit_record = credit_lines[current_credit]
             if (debit_record.amount_residual > 0 and
@@ -192,6 +192,9 @@ def _migrate_full_reconcile(cr, registry):
                 reconcile_records(
                     cr, debit_record, credit_record, full_reconcile_id
                 )
+            if current_debit == last_debit and current_credit == last_credit:
+                # Nothing more to reconcile
+                break
             if debit_record.amount_residual <= 0 and \
                     current_debit < last_debit:
                 current_debit += 1
