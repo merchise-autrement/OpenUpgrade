@@ -192,9 +192,11 @@ def _migrate_full_reconcile(cr, registry):
                 reconcile_records(
                     cr, debit_record, credit_record, full_reconcile_id
                 )
-            if debit_record.amount_residual <= 0:
+            if debit_record.amount_residual <= 0 and \
+                    current_debit <= last_debit:
                 current_debit += 1
-            if credit_record.amount_residual >= 0:
+            if credit_record.amount_residual >= 0 and \
+                    current_credit <= last_credit:
                 current_credit += 1
         # Update amount residual in reconciled records:
         update_account_move_line(cr, debit_lines, full_reconcile_id)
