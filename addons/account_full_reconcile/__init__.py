@@ -244,6 +244,7 @@ def _migrate_full_reconcile(cr, registry):
     # one for the alternative currency defined in the line. For clarity
     # we will prefix the first with company_currency_ and the other with
     # line_currency_
+    _logger.info("Starting migration of reconciliations.")
     cr.execute(
         """
         SELECT
@@ -275,6 +276,7 @@ def _migrate_full_reconcile(cr, registry):
             aml.reconcile_id, aml.reconcile_partial_id, aml.date
         """
     )
+    _logger.info("SQL selection for migration of reconciliations complete.")
     current_id = False
     debit_lines = []
     credit_lines = []
@@ -292,3 +294,4 @@ def _migrate_full_reconcile(cr, registry):
     # Do remaining bunch of records:
     if current_id:
         handle_complete_reconciliation(cr, debit_lines, credit_lines)
+    _logger.info("Migration of reconciliations complete.")
