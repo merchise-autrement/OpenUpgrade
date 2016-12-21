@@ -49,7 +49,7 @@ def _migrate_full_reconcile(cr, registry):
         amount = min(debit_record.debit, credit_record.credit)
         currency_id = False
         rate = 1.0
-        amount_currency = 0
+        amount_currency = 0.0
         if debit_record.line_currency_id and debit_record.amount_currency:
             currency_id = debit_record.line_currency_id
             rate = abs(debit_record.balance / amount_currency)
@@ -254,15 +254,17 @@ def _migrate_full_reconcile(cr, registry):
             COALESCE(aml.reconcile_id, 0)
                 AS reconcile_id,
             aml.reconcile_ref,
-            aml.debit,
-            aml.credit,
+            COALESCE(aml.debit, 0.0) AS debit,
+            COALESCE(aml.credit, 0.0) AS credit,
             aml.date AS date,
-            aml.debit - aml.credit AS amount_residual,
+            COALESCE(aml.debit, 0.0) - COALESCE(aml.credit, 0.0)
+                AS amount_residual,
             aml.currency_id as line_currency_id,
             line_cur.rounding AS line_currency_rounding,
             com.currency_id as company_currency_id,
             company_cur.rounding AS company_currency_rounding,
-            aml.amount_currency as amount_currency,
+            COALESCE(aml.amount_currency as amount_currency, 0.0)
+                AS amount_currency,
             aml.company_id
         FROM account_move_line aml
         JOIN res_company com on aml.company_id = com.id
