@@ -263,8 +263,7 @@ def _migrate_full_reconcile(cr, registry):
             line_cur.rounding AS line_currency_rounding,
             com.currency_id as company_currency_id,
             company_cur.rounding AS company_currency_rounding,
-            COALESCE(aml.amount_currency as amount_currency, 0.0)
-                AS amount_currency,
+            COALESCE(aml.amount_currency, 0.0) AS amount_currency,
             aml.company_id
         FROM account_move_line aml
         JOIN res_company com on aml.company_id = com.id
