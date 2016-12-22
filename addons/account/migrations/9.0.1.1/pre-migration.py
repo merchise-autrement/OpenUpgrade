@@ -181,7 +181,7 @@ def precreate_fields(env):
             (field.string,)
         )
 
-    aml_model = env['account_move_line']
+    aml_model = env['account.move.line']
     aml_fields = [
         'amount_residual',
         'amount_residual_currency',
