@@ -3,6 +3,7 @@
 import logging
 from openerp import SUPERUSER_ID
 from openerp.tools.float_utils import float_round, float_is_zero
+from openerp import registry
 
 import models
 
@@ -245,6 +246,7 @@ def _migrate_full_reconcile(cr, registry):
     # we will prefix the first with company_currency_ and the other with
     # line_currency_
     _logger.info("Starting migration of reconciliations.")
+    generator_cursor = registry(cr.dbname).cursor()
     cr.execute(
         """
         SELECT
@@ -281,7 +283,7 @@ def _migrate_full_reconcile(cr, registry):
     current_id = False
     debit_lines = []
     credit_lines = []
-    for db_record in result_iter(cr):
+    for db_record in result_iter(generator_cursor):
         record = LineRecord(db_record)
         if current_id and current_id != record.combined_reconcile_id:
             handle_complete_reconciliation(cr, debit_lines, credit_lines)

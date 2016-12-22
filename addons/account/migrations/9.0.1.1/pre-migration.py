@@ -4,6 +4,7 @@
 # © 2016 Eficent Business and IT Consulting Services S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from openupgradelib import openupgrade
+from openerp.models import get_pg_type
 
 column_renames = {
     'account_bank_statement': [
@@ -58,7 +59,8 @@ PROPERTY_FIELDS = {
     ('res.partner', 'property_account_position',
      'property_account_position_id'),
     ('res.partner', 'property_payment_term', 'property_payment_term_id'),
-    ('res.partner', 'property_supplier_payment_term', 'property_supplier_payment_term_id'),
+    ('res.partner', 'property_supplier_payment_term',
+     'property_supplier_payment_term_id'),
 }
 
 
@@ -165,9 +167,34 @@ def map_account_tax_template_type(cr):
         table='account_tax_template', write='sql')
 
 
-@openupgrade.migrate()
-def migrate(cr, version):
+def precreate_fields(env):
+    """Create computed fields that take long time to compute, but will be
+    filled with valid values by migration."""
+    def create_field(cr, model, field_name):
+        field = model._fields[field_name]
+        cr.execute(
+            'ALTER TABLE "%s" ADD COLUMN "%s" %s' %
+            (model._table, field_name, get_pg_type(field)[1])
+        )
+        cr.execute(
+            'COMMENT ON COLUMN %s."%s" IS %%s' % (model._table, field_name),
+            (field.string,)
+        )
+
+    aml_model = env['account_move_line']
+    aml_fields = [
+        'amount_residual',
+        'amount_residual_currency',
+        'reconciled',
+    ]
+    for field_name in aml_fields:
+        create_field(env.cr, aml_model, field_name)
+
+
+@openupgrade.migrate(use_env=True)
+def migrate(env, version):
     # 9.0 introduces a constraint enforcing this
+    cr = env.cr
     cr.execute(
         "update account_account set reconcile=True "
         "where type in ('receivable', 'payable')"
@@ -180,3 +207,4 @@ def migrate(cr, version):
     map_account_tax_type(cr)
     map_account_tax_template_type(cr)
     remove_account_moves_from_special_periods(cr)
+    precreate_fields(env)
