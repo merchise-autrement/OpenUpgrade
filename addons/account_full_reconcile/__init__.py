@@ -234,8 +234,10 @@ def _migrate_full_reconcile(cr, registry):
                 results = cursor.fetchmany(arraysize)
             except:
                 # Assume no more rows to fetch
+                cursor.close()
                 break
             if not results:
+                cursor.close()
                 break
             for result in results:
                 yield result
@@ -245,8 +247,8 @@ def _migrate_full_reconcile(cr, registry):
     # we will prefix the first with company_currency_ and the other with
     # line_currency_
     _logger.info("Starting migration of reconciliations.")
-    generator_cursor = registry(cr.dbname).cursor()
-    cr.execute(
+    generator_cursor = registry.cursor()
+    generator_cursor.execute(
         """
         SELECT
             aml.id AS id,
