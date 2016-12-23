@@ -3,7 +3,6 @@
 import logging
 from openerp import SUPERUSER_ID
 from openerp.tools.float_utils import float_round, float_is_zero
-from openerp import registry
 
 import models
 
