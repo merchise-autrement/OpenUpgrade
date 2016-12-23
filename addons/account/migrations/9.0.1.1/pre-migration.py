@@ -4,7 +4,6 @@
 # © 2016 Eficent Business and IT Consulting Services S.L.
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 from openupgradelib import openupgrade
-from openerp.models import get_pg_type
 
 column_renames = {
     'account_bank_statement': [
@@ -167,34 +166,40 @@ def map_account_tax_template_type(cr):
         table='account_tax_template', write='sql')
 
 
-def precreate_fields(env):
+def precreate_fields(cr):
     """Create computed fields that take long time to compute, but will be
     filled with valid values by migration."""
-    def create_field(cr, model, field_name):
-        field = model._fields[field_name]
+
+    def create_field(cr, table_name, field_name, pg_type, comment):
         cr.execute(
             'ALTER TABLE "%s" ADD COLUMN "%s" %s' %
-            (model._table, field_name, get_pg_type(field)[1])
+            (table_name, field_name, pg_type)
         )
         cr.execute(
-            'COMMENT ON COLUMN %s."%s" IS %%s' % (model._table, field_name),
-            (field.string,)
+            'COMMENT ON COLUMN %s."%s" IS %%s' % (table_name, field_name),
+            (comment,)
         )
 
-    aml_model = env['account.move.line']
-    aml_fields = [
-        'amount_residual',
-        'amount_residual_currency',
-        'reconciled',
-    ]
-    for field_name in aml_fields:
-        create_field(env.cr, aml_model, field_name)
+    create_field(
+        cr,
+        "account_move_line", "amount_residual", "numeric",
+        "Residual Amount"
+    )
+    create_field(
+        cr,
+        "account_move_line", "amount_residual_currency", "numeric",
+        "Residual Amount in Currency"
+    )
+    create_field(
+        cr,
+        "account_move_line", "reconciled", "bool",
+        "Reconciled"
+    )
 
 
-@openupgrade.migrate(use_env=True)
-def migrate(env, version):
+@openupgrade.migrate()
+def migrate(cr, version):
     # 9.0 introduces a constraint enforcing this
-    cr = env.cr
     cr.execute(
         "update account_account set reconcile=True "
         "where type in ('receivable', 'payable')"
@@ -207,4 +212,4 @@ def migrate(env, version):
     map_account_tax_type(cr)
     map_account_tax_template_type(cr)
     remove_account_moves_from_special_periods(cr)
-    precreate_fields(env)
+    precreate_fields(cr)
