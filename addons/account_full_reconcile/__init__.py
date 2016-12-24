@@ -247,7 +247,7 @@ def _migrate_full_reconcile(cr, registry):
     # we will prefix the first with company_currency_ and the other with
     # line_currency_
     _logger.info("Starting migration of reconciliations.")
-    generator_cursor = registry.cursor()
+    generator_cursor = cr._cnx.cursor()  # Should be in same connection as cr
     generator_cursor.execute(
         """
         SELECT
