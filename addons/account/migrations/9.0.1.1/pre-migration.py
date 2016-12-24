@@ -182,6 +182,21 @@ def precreate_fields(cr):
 
     create_field(
         cr,
+        "account_move", "currency_id", "int4",
+        "Currency"
+    )
+    create_field(
+        cr,
+        "account_move", "amount", "numeric",
+        "Amount"
+    )
+    create_field(
+        cr,
+        "account_move", "matched_percentage", "numeric",
+        "Percentage Matched"
+    )
+    create_field(
+        cr,
         "account_move_line", "amount_residual", "numeric",
         "Residual Amount"
     )
@@ -194,6 +209,32 @@ def precreate_fields(cr):
         cr,
         "account_move_line", "reconciled", "bool",
         "Reconciled"
+    )
+    create_field(
+        cr,
+        "account_move_line", "company_currency_id", "int4",
+        "Utility field to express amount currency"
+    )
+    create_field(
+        cr,
+        "account_move_line", "balance", "numeric",
+        "Technical field holding the debit - credit in order to open"
+        " meaningful graph views from reports"
+    )
+    create_field(
+        cr,
+        "account_move_line", "debit_cash_basis", "numeric",
+        "Debit Cash Basis"
+    )
+    create_field(
+        cr,
+        "account_move_line", "credit_cash_basis", "numeric",
+        "Credit Cash Basis"
+    )
+    create_field(
+        cr,
+        "account_move_line", "balance_cash_basis", "numeric",
+        "Balance Cash Basis"
     )
 
 
