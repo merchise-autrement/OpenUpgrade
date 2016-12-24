@@ -44,6 +44,13 @@ def _migrate_full_reconcile(cr, registry):
             self.company_id = db_record[13]
             self.amount_residual_currency = self.amount_currency
 
+        def __str__(self):
+            return (
+                "LineRecord: id=%d, debit=%.2f, credit=%.2f,"
+                " amount_residual=%.2f" %
+                (self.id, self.debit, self.credit, self.amount_residual)
+            )
+
     def reconcile_records(cr, debit_record, credit_record, full_reconcile_id):
         """Links a credit and debit line through partial reconciliation."""
         amount = min(debit_record.debit, credit_record.credit)
@@ -178,7 +185,8 @@ def _migrate_full_reconcile(cr, registry):
         # 1. Reconcile equal amounts:
         for debit_record in debit_lines:
             for credit_record in credit_lines:
-                if debit_record.debit == credit_record.credit:
+                if debit_record.amount_residual == \
+                        -credit_record.amount_residual:
                     reconcile_records(
                         cr, debit_record, credit_record, full_reconcile_id
                     )
