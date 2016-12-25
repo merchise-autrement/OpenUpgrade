@@ -152,6 +152,8 @@ def _migrate_full_reconcile(cr, registry):
                     amount_residual = %s,
                     amount_residual_currency = %s,
                     reconciled = %s,
+                    balance = %s,
+                    company_currency_id = %s,
                     write_date = CURRENT_TIMESTAMP,
                     write_uid = %s
                 WHERE id = %s
@@ -166,6 +168,8 @@ def _migrate_full_reconcile(cr, registry):
                         precision_rounding=line.company_currency_rounding
                     ),
                     reconciled,
+                    line.balance,
+                    line.company_currency_id,
                     SUPERUSER_ID,
                     line.id
                 )
@@ -186,7 +190,8 @@ def _migrate_full_reconcile(cr, registry):
         for debit_record in debit_lines:
             for credit_record in credit_lines:
                 if debit_record.amount_residual == \
-                        -credit_record.amount_residual:
+                        -credit_record.amount_residual and
+                        debit_record.amount_residual > 0:
                     reconcile_records(
                         cr, debit_record, credit_record, full_reconcile_id
                     )
