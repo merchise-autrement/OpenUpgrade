@@ -190,7 +190,7 @@ def _migrate_full_reconcile(cr, registry):
         for debit_record in debit_lines:
             for credit_record in credit_lines:
                 if debit_record.amount_residual == \
-                        -credit_record.amount_residual and
+                        -credit_record.amount_residual and \
                         debit_record.amount_residual > 0:
                     reconcile_records(
                         cr, debit_record, credit_record, full_reconcile_id
