@@ -51,9 +51,20 @@ def _migrate_full_reconcile(cr, registry):
                 (self.id, self.debit, self.credit, self.amount_residual)
             )
 
+        def __repr__(self):
+            return __str__(self)
+
     def reconcile_records(cr, debit_record, credit_record, full_reconcile_id):
-        """Links a credit and debit line through partial reconciliation."""
-        amount = min(debit_record.debit, credit_record.credit)
+        """Links a credit and debit line through partial reconciliation.
+
+        The amount to be reconciled is dependent on the remaining amount
+        in the debit and credit lines, we have to take the absolute
+        amount_residual, as it has a negative sign for creditlines.
+        """
+        amount = min(
+            abs(debit_record.amount_residual),
+            abs(credit_record.amount_residual)
+        )
         currency_id = False
         rate = 1.0
         amount_currency = 0.0
