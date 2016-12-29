@@ -236,7 +236,55 @@ def precreate_fields(cr):
         "account_move_line", "balance_cash_basis", "numeric",
         "Balance Cash Basis"
     )
-
+    # Set fields on account_move
+    # matched_percentage will be set to 0.0, but be filled in migration
+    #     of reconciliations.
+    openupgrade.logged_query(
+        cr,
+        """\
+        UPDATE account_move
+         SET currency_id = subquery.currency_id,
+             amount = subquery.amount,
+             matched_percentage = 0.0
+         FROM (SELECT
+                am.id as id,
+                rc.currency_id as currency_id,
+               sum(aml.debit) as amount
+            FROM account_move am
+            JOIN res_company rc ON rc.id = am.company_id
+            LEFT OUTER JOIN account_move_line aml ON aml.move_id = am.id
+            GROUP BY am.id, rc.currency_id
+        ) as subquery
+        WHERE account_move.id = subquery.id
+        """
+    )
+    # cash basis fields depend om matched_percentage, which will be filled
+    # by reconciliation migration. For now will be filled with values that
+    # are correct if associated journal is not for sale or purchase.
+    openupgrade.logged_query(
+        cr,
+        """\
+        UPDATE account_move_line
+         SET amount_residual = 0.0,
+             amount_residual_currency = 0.0,
+             reconciled = False,
+             company_currency_id = subquery.company_currency_id,
+             balance = subquery.balance,
+             debit_cash_basis = subquery.debit,
+             credit_cash_basis = subquery.credit,
+             balance_cash_basis = subquery.balance
+         FROM (SELECT
+                aml.id as id,
+                rc.currency_id as company_currency_id,
+               (aml.debit - aml.credit) as balance,
+               aml.debit as debit,
+               aml.credit as credit
+            FROM account_move_line aml
+            JOIN res_company rc ON rc.id = aml.company_id
+        ) as subquery
+        WHERE account_move_line.id = subquery.id
+        """
+    )
 
 @openupgrade.migrate()
 def migrate(cr, version):
