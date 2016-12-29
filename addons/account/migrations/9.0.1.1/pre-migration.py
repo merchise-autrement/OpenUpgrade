@@ -242,6 +242,13 @@ def precreate_fields(cr):
         "account_move_line", "user_type_id", "int4",
         "User Type Id"
     )
+    # following field took hours to recompute.
+    create_field(
+        cr,
+        "account_invoice_line", "price_subtotal_signed", "numeric",
+        "Total amount in the currency of the company,"
+        " negative for credit notes."
+    )
     # Set fields on account_move
     # matched_percentage will be set to 0.0, but be filled in migration
     #     of reconciliations.
@@ -293,6 +300,28 @@ def precreate_fields(cr):
             JOIN account_account aa ON aa.id = aml.account_id
         ) as subquery
         WHERE account_move_line.id = subquery.id
+        """
+    )
+    # Set fields on account_invoice_line
+    # TODO: rounding in SQL and currency-computation:
+    openupgrade.logged_query(
+        cr,
+        """\
+        WITH subquery(id, price_subtotal_signed) AS (
+            SELECT
+                ail.id,
+                CASE
+                    WHEN ai.type LIKE '%refund'
+                    THEN -ail.price_subtotal
+                    ELSE ail.price_subtotal
+                END
+        FROM account_invoice_line ail
+        JOIN account_invoice ai ON ail.invoice_id = ai.id
+        )
+        UPDATE account_invoice_line
+        SET price_subtotal_signed = subquery.price_subtotal_signed
+        FROM subquery
+        WHERE account_invoice_line.id = subquery.id
         """
     )
 
