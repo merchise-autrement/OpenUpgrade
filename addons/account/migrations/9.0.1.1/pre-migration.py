@@ -236,6 +236,12 @@ def precreate_fields(cr):
         "account_move_line", "balance_cash_basis", "numeric",
         "Balance Cash Basis"
     )
+    # user_type_id has 'old' name user_type, but that is not in database:
+    create_field(
+        cr,
+        "account_move_line", "user_type_id", "int4",
+        "User Type Id"
+    )
     # Set fields on account_move
     # matched_percentage will be set to 0.0, but be filled in migration
     #     of reconciliations.
@@ -265,22 +271,26 @@ def precreate_fields(cr):
         cr,
         """\
         UPDATE account_move_line
-         SET amount_residual = 0.0,
-             amount_residual_currency = 0.0,
-             reconciled = False,
-             company_currency_id = subquery.company_currency_id,
-             balance = subquery.balance,
-             debit_cash_basis = subquery.debit,
-             credit_cash_basis = subquery.credit,
-             balance_cash_basis = subquery.balance
-         FROM (SELECT
+        SET amount_residual = 0.0,
+            amount_residual_currency = 0.0,
+            reconciled = False,
+            company_currency_id = subquery.company_currency_id,
+            balance = subquery.balance,
+            debit_cash_basis = subquery.debit,
+            credit_cash_basis = subquery.credit,
+            balance_cash_basis = subquery.balance,
+            user_type_id = subquery.user_type_id
+        FROM (
+            SELECT
                 aml.id as id,
                 rc.currency_id as company_currency_id,
-               (aml.debit - aml.credit) as balance,
-               aml.debit as debit,
-               aml.credit as credit
+                (aml.debit - aml.credit) as balance,
+                aml.debit as debit,
+                aml.credit as credit,
+                aa.user_type_id as user_type_id
             FROM account_move_line aml
             JOIN res_company rc ON rc.id = aml.company_id
+            JOIN account_account aa ON aa.id = aml.account_id
         ) as subquery
         WHERE account_move_line.id = subquery.id
         """
