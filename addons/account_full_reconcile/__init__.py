@@ -236,11 +236,13 @@ def _migrate_full_reconcile(cr, registry):
                 # guard against endless loop due to unexpected/wrong data:
                 # could be caused by credit line with amount_residual > 0
                 # or debit_line with amount_residual < 0.
-                _logger.error(
-                    "Unexpected data prevented reconcile of lines,"
-                    " debit_line=%s, credit_line=%s" %
-                    (debit_record, credit_record)
-                )
+                if current_debit.amount_residual < 0.0 or \
+                        current_credit.amount_residual > 0.0:
+                    _logger.error(
+                        "Unexpected data prevented reconcile of lines,"
+                        " debit_line=%s, credit_line=%s" %
+                        (debit_record, credit_record)
+                    )
                 if current_debit < last_debit:
                     current_debit += 1
                 if current_credit < last_credit:
