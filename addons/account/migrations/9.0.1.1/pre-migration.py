@@ -303,20 +303,65 @@ def precreate_fields(cr):
         """
     )
     # Set fields on account_invoice_line
-    # TODO: rounding in SQL and currency-computation:
+    # For the moment use practical rounding of result to 2 decimals,
+    # no currency that I know of has more precision at the moment.
     openupgrade.logged_query(
         cr,
         """\
-        WITH subquery(id, price_subtotal_signed) AS (
+        WITH company_rate_selection AS (
+            SELECT
+                ai.id, com_cur.currency_id as company_currency_id,
+                max(com_cur.name) as rate_date
+            FROM account_invoice ai
+            JOIN res_company com on ai.company_id = com.id
+            LEFT OUTER JOIN res_currency_rate com_cur
+                ON com.currency_id = com_cur.id
+                    AND ai.company_id =
+                        COALESCE(com_cur.company_id, ai.company_id)
+                    AND COALESCE(ai.date_invoice, date(ai.create_date)) >=
+                        date(com_cur.name)
+            GROUP BY ai.id, com_cur.currency_id
+        )
+        , invoice_rate_selection AS (
+            SELECT
+                ai.id, inv_cur.currency_id as invoice_currency_id,
+                max(inv_cur.name) as rate_date
+            FROM account_invoice ai
+            JOIN res_company com on ai.company_id = com.id
+            LEFT OUTER JOIN res_currency_rate inv_cur
+                ON COALESCE(ai.currency_id, com.currency_id) = inv_cur.id
+                    AND ai.company_id =
+                        COALESCE(inv_cur.company_id, ai.company_id)
+                    AND COALESCE(ai.date_invoice, date(ai.create_date)) >=
+                        date(inv_cur.name)
+            GROUP BY ai.id, inv_cur.currency_id
+        )
+        , effective_rates AS (
+            SELECT
+                ai.id as invoice_id,
+                com_cur.rate as company_currency_rate,
+                inv_cur.rate as invoice_currency_rate,
+                (inv_cur.rate / com_cur.rate) as effective_rate
+            FROM account_invoice ai
+            JOIN company_rate_selection crs ON ai.id = crs.id
+            JOIN res_currency_rate com_cur
+                ON crs.company_currency_id = com_cur.currency_id
+                    AND crs.rate_date = com_cur.name
+            JOIN invoice_rate_selection irs ON ai.id = irs.id
+            JOIN res_currency_rate inv_cur
+                ON irs.invoice_currency_id = inv_cur.currency_id
+                    AND irs.rate_date = inv_cur.name)
+        , subquery(id, price_subtotal_signed) AS (
             SELECT
                 ail.id,
                 CASE
                     WHEN ai.type IN ('in_refund', 'out_refund')
-                    THEN -ail.price_subtotal
-                    ELSE ail.price_subtotal
+                    THEN ROUND(-ail.price_subtotal * er.effective_rate, 2)
+                    ELSE ROUND(ail.price_subtotal  * er.effective_rate, 2)
                 END
-        FROM account_invoice_line ail
-        JOIN account_invoice ai ON ail.invoice_id = ai.id
+            FROM account_invoice_line ail
+            JOIN account_invoice ai ON ail.invoice_id = ai.id
+            JOIN effective_rates er ON ai.id = er.invoice_id
         )
         UPDATE account_invoice_line
         SET price_subtotal_signed = subquery.price_subtotal_signed
