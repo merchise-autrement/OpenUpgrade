@@ -294,7 +294,7 @@ def precreate_fields(cr):
                 (aml.debit - aml.credit) as balance,
                 aml.debit as debit,
                 aml.credit as credit,
-                aa.user_type_id as user_type_id
+                aa.user_type as user_type_id
             FROM account_move_line aml
             JOIN res_company rc ON rc.id = aml.company_id
             JOIN account_account aa ON aa.id = aml.account_id
