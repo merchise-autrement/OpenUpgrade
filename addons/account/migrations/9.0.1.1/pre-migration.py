@@ -311,7 +311,7 @@ def precreate_fields(cr):
             SELECT
                 ail.id,
                 CASE
-                    WHEN ai.type LIKE '%refund'
+                    WHEN ai.type IN ('in_refund', 'out_refund')
                     THEN -ail.price_subtotal
                     ELSE ail.price_subtotal
                 END
