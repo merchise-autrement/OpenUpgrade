@@ -148,7 +148,7 @@ def _migrate_full_reconcile(cr, registry):
                     # be zero as well:
                     currency_zero = float_is_zero(
                         line.amount_residual_currency,
-                        precision_rounding=line.line_currency_id_rounding
+                        precision_rounding=line.line_currency_rounding
                     )
                     if currency_zero:
                         reconciled = True
