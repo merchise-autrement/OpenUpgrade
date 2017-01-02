@@ -70,14 +70,12 @@ def _migrate_full_reconcile(cr, registry):
         amount_currency = 0.0
         if debit_record.line_currency_id and debit_record.amount_currency:
             currency_id = debit_record.line_currency_id
-            rate = abs(debit_record.balance / amount_currency)
+            rate = abs(debit_record.balance / debit_record.amount_currency)
             amount_currency = amount * rate
-        else:
-            if credit_record.line_currency_id and \
-                    credit_record.amount_currency:
-                currency_id = credit_record.line_currency_id
-                rate = abs(credit_record.balance / amount_currency)
-                amount_currency = amount * rate
+        elif credit_record.line_currency_id and credit_record.amount_currency:
+            currency_id = credit_record.line_currency_id
+            rate = abs(credit_record.balance / credit_record.amount_currency)
+            amount_currency = amount * rate
         cr.execute(
             """
             INSERT INTO account_partial_reconcile (
