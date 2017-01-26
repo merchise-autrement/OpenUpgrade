@@ -4,7 +4,7 @@
 import logging
 
 from openupgradelib import openupgrade
-from openerp import SUPERUSER_ID
+from openerp import models, SUPERUSER_ID
 from openerp.tools.float_utils import float_round, float_is_zero
 
 
