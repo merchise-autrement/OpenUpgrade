@@ -191,6 +191,10 @@ def blacklist_field_recomputation(env):
         AccountInvoice, AccountInvoiceLine
     AccountInvoice._openupgrade_recompute_fields_blacklist = [
         'payment_move_line_ids',
+        'residual',
+        'residual_signed',
+        'residual_company_signed',
+        'reconciled',
     ]
     AccountInvoiceLine._openupgrade_recompute_fields_blacklist = [
         'price_subtotal_signed',

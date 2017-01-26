@@ -464,8 +464,22 @@ def migrate_reconcile(cr):
     _logger.info("Updated account_move_line *_cash_basis.")
 
 
+def invoice_recompute(env):
+    set_workflow_org = models.BaseModel.step_workflow
+    models.BaseModel.step_workflow = lambda *args, **kwargs: None
+    to_recompute = env['account.invoice'].search([])
+    for field in [
+            'residual', 'residual_signed',
+            'residual_company_signed', 'reconciled']:
+        env.add_todo(env['account.invoice']._fields[field], to_recompute)
+    env['account.invoice'].recompute()
+    models.BaseModel.step_workflow = set_workflow_org
+    _logger.info("Forced recompute of account_invoice fields.")
+
+
 @openupgrade.migrate(no_version=True, use_env=True)
 def migrate(env, version):
     """Thanks to no_version migration will be run on install as well."""
     cr = env.cr
     migrate_reconcile(cr)
+    invoice_recompute(env)
