@@ -190,7 +190,7 @@ def migrate_reconcile(cr):
     def handle_complete_reconciliation(cr, debit_lines, credit_lines):
         """Each time a move line has another reconcile id, we can
         migrate the 8.0 reconciliation in full."""
-        if not debit_lines and  not credit_lines:
+        if not debit_lines and not credit_lines:
             return
         record = debit_lines and debit_lines[0] or credit_lines[0]
         full_reconcile_id = (

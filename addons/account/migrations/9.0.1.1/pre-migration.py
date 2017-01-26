@@ -170,7 +170,7 @@ def blacklist_field_recomputation(env):
     """Create computed fields that take long time to compute, but will be
     filled with valid values by migration."""
     from openerp.addons.account.models.account_move import \
-            AccountMove, AccountMoveLine
+        AccountMove, AccountMoveLine
     AccountMove._openupgrade_recompute_fields_blacklist = [
         'currency_id',
         'amount',
@@ -188,7 +188,7 @@ def blacklist_field_recomputation(env):
         'user_type_id',
     ]
     from openerp.addons.account.models.account_invoice import \
-            AccountInvoice, AccountInvoiceLine
+        AccountInvoice, AccountInvoiceLine
     AccountInvoice._openupgrade_recompute_fields_blacklist = [
         'payment_move_line_ids',
     ]
