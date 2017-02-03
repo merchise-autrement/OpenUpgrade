@@ -465,6 +465,20 @@ def fill_blacklisted_fields(cr):
     )
 
 
+def reset_blacklist_field_recomputation():
+    """Make sure blacklists are disabled, to prevent problems in other
+    modules.
+    """
+    from openerp.addons.account.models.account_move import \
+        AccountMove, AccountMoveLine
+    AccountMove._openupgrade_recompute_fields_blacklist = []
+    AccountMoveLine._openupgrade_recompute_fields_blacklist = []
+    from openerp.addons.account.models.account_invoice import \
+        AccountInvoice, AccountInvoiceLine
+    AccountInvoice._openupgrade_recompute_fields_blacklist = []
+    AccountInvoiceLine._openupgrade_recompute_fields_blacklist = []
+
+
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
     cr = env.cr
@@ -554,3 +568,4 @@ def migrate(env, version):
     map_account_tax_template_type(cr)
     migrate_account_auto_fy_sequence(env)
     fill_blacklisted_fields(cr)
+    reset_blacklist_field_recomputation()
