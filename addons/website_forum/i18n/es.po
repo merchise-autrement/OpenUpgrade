@@ -6,14 +6,15 @@
 # Alejandro Die Sanchis <marketing@domatix.com>, 2016
 # Ana Juaristi <ajuaristio@gmail.com>, 2015
 # Antonio Trueba, 2016
-# Mateo Tibaquirá <nestormateo@gmail.com>, 2015
+# Inigo Zuluaga <inigo_zuluaga@yahoo.es>, 2016
+# Mateo Tibaquirá Palacios <nestormateo@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-11-26 14:10+0000\n"
-"PO-Revision-Date: 2016-03-07 11:21+0000\n"
-"Last-Translator: Antonio Trueba\n"
+"PO-Revision-Date: 2017-04-14 15:00+0000\n"
+"Last-Translator: Inigo Zuluaga <inigo_zuluaga@yahoo.es>\n"
 "Language-Team: Spanish (http://www.transifex.com/odoo/odoo-9/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -70,7 +71,7 @@ msgstr "&amp;times;"
 #. module: website_forum
 #: model:forum.forum,faq:website_forum.forum_help
 msgid "(The above section was adapted from Stackoverflow’s FAQ.)"
-msgstr ""
+msgstr "(La sección anterior fue adaptada de las preguntas frecuentes de Stackoverflow.)"
 
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.view_forum_forum_form
@@ -341,7 +342,7 @@ msgstr ""
 #: model:ir.ui.view,arch_db:website_forum.display_post_question_block
 #: model:ir.ui.view,arch_db:website_forum.post_description_full
 msgid "<span>By </span>"
-msgstr ""
+msgstr "<span> por <span>"
 
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.tag
@@ -971,7 +972,7 @@ msgstr ""
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_post_karma_accept
 msgid "Convert comment to answer"
-msgstr ""
+msgstr "Convertir comentario en respuesta"
 
 #. module: website_forum
 #: model:ir.model.fields,field_description:website_forum.field_forum_forum_karma_comment_convert_own
@@ -1908,7 +1909,7 @@ msgstr "Ofensivo"
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.post_answers
 msgid "On"
-msgstr ""
+msgstr "En"
 
 #. module: website_forum
 #. openerp-web
@@ -2156,7 +2157,7 @@ msgstr "Pregunta votada en contra"
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.display_post_question_block
 msgid "Question has accepted answer"
-msgstr ""
+msgstr "La pregunta ha aceptado la respuesta"
 
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.404
@@ -2914,7 +2915,7 @@ msgstr ""
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.post_answer
 msgid "Your Answer"
-msgstr ""
+msgstr "Su respuesta"
 
 #. module: website_forum
 #: model:ir.ui.view,arch_db:website_forum.new_discussion

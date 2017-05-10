@@ -4,15 +4,16 @@
 # 
 # Translators:
 # Ana Juaristi <ajuaristio@gmail.com>, 2015
-# Ivan Nieto <ivan.nieto.sousa@gmail.com>, 2016
+# Inigo Zuluaga <inigo_zuluaga@yahoo.es>, 2016
+# Ivan Nieto <ivan.n.s@tuta.io>, 2016
 # Sergio Flores <vitavitae1@gmail.com>, 2015-2016
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-07 14:39+0000\n"
-"PO-Revision-Date: 2016-03-04 20:53+0000\n"
-"Last-Translator: Ivan Nieto <ivan.nieto.sousa@gmail.com>\n"
+"PO-Revision-Date: 2017-03-23 14:28+0000\n"
+"Last-Translator: Inigo Zuluaga <inigo_zuluaga@yahoo.es>\n"
 "Language-Team: Spanish (http://www.transifex.com/odoo/odoo-9/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +50,7 @@ msgstr ""
 #: code:addons/pos_mercury/static/src/xml/pos_mercury.xml:46
 #, python-format
 msgid "ABOVE AMOUNT PURSUANT"
-msgstr ""
+msgstr "SUPERIOR A LA CANTIDAD CORRESPONDIENTE"
 
 #. module: pos_mercury
 #. openerp-web
@@ -63,7 +64,7 @@ msgstr "CÓDIGO DE APROBACIÓN:"
 #: code:addons/pos_mercury/static/src/js/pos_mercury.js:189
 #, python-format
 msgid "All Connections Failed"
-msgstr ""
+msgstr "Todas las conexiones han fallado"
 
 #. module: pos_mercury
 #: model:ir.ui.view,arch_db:pos_mercury.mercury_return
@@ -86,7 +87,7 @@ msgstr ""
 #. module: pos_mercury
 #: model:ir.model.fields,field_description:pos_mercury.field_account_bank_statement_line_mercury_card_brand
 msgid "Card Brand"
-msgstr ""
+msgstr "Marca de la tarjeta"
 
 #. module: pos_mercury
 #: model:ir.model.fields,field_description:pos_mercury.field_account_bank_statement_line_mercury_card_number
@@ -129,7 +130,7 @@ msgstr ""
 #: code:addons/pos_mercury/static/src/js/pos_mercury.js:160
 #, python-format
 msgid "Connection Lost"
-msgstr ""
+msgstr "Conexión perdida"
 
 #. module: pos_mercury
 #. openerp-web
@@ -161,7 +162,7 @@ msgstr "Creado en"
 #: code:addons/pos_mercury/models/pos_mercury.py:17
 #, python-format
 msgid "Credit Card"
-msgstr ""
+msgstr "Tarjetas de Crédito"
 
 #. module: pos_mercury
 #. openerp-web
@@ -617,7 +618,7 @@ msgstr ""
 #: code:addons/pos_mercury/static/src/js/pos_mercury.js:560
 #, python-format
 msgid "Odoo error while processing transaction."
-msgstr ""
+msgstr "Error de Odoo al momento de procesar a transacción."
 
 #. module: pos_mercury
 #. openerp-web
