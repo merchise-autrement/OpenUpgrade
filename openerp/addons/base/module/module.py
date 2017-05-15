@@ -596,7 +596,13 @@ class module(osv.osv):
         for mod in todo:
             for dep in mod.dependencies_id:
                 if dep.state == 'unknown':
-                    raise UserError(_('You try to upgrade a module that depends on the module: %s.\nBut this module is not available in your system.') % (dep.name,))
+                    # OpenUpgrade Merchise start: tell me which module
+                    raise UserError(
+                        _('You try to upgrade a module (%s) that '
+                          'depends on the module: %s.\nBut this module is '
+                          'not available in your system.') % (mod.name, dep.name,)
+                    )
+                    # OpenUpgrade Merchise end
                 if dep.state == 'uninstalled':
                     ids2 = self.search(cr, uid, [('name', '=', dep.name)])
                     to_install.extend(ids2)
