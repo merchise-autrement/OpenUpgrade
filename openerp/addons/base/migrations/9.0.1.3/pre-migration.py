@@ -57,6 +57,7 @@ def cleanup_modules(cr):
     other modules."""
     openupgrade.update_module_names(
         cr, [
+            ('contacts', 'mail'),
             ('marketing_crm', 'crm'),
             ('web_gantt', 'web'),
             ('web_graph', 'web'),
@@ -80,6 +81,9 @@ def cleanup_modules(cr):
             ('sale_order_back2draft', 'sale'),
             # from OCA/bank-payment
             ('account_payment_sale_stock', 'account_payment_sale'),
+            # from OCA/website
+            ('website_event_register_free', 'website_event'),
+            ('website_event_register_free_with_sale', 'website_event_sale'),
         ], merge_modules=True,
     )
 
