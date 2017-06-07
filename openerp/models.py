@@ -5942,6 +5942,7 @@ class BaseModel(object):
                     )
                     map(recs._recompute_done, fs)
                     continue
+            _started = datetime.datetime.now()
             _logger.info(
                 "Actual recompute of field %s for %d recs." %
                 (field_key, len(recs))
@@ -5959,6 +5960,11 @@ class BaseModel(object):
                     recs.browse(ids)._write(dict(vals))
             # mark computed fields as done
             map(recs._recompute_done, fs)
+            _ended = datetime.datetime.now()
+            _logger.info(
+                'Recomputation of field %s took %.2f',
+                field_key, (_ended - _started).total_seconds()
+            )
 
     #
     # Generic onchange method
