@@ -476,7 +476,15 @@ class PurchaseOrderLine(models.Model):
             qty = 0.0
             for inv_line in line.invoice_lines:
                 if inv_line.invoice_id.state not in ['cancel']:
-                    qty += inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
+                    try:
+                        qty += inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
+                    except:
+                        print(
+                            'Line', line,
+                            'Invoice line ', inv_line,
+                            'Invoice UOM ID', inv_line.uom_id,
+                            'Line Product UOM', line.product_uom
+                        )
             line.qty_invoiced = qty
 
     @api.depends('order_id.state', 'move_ids.state')
