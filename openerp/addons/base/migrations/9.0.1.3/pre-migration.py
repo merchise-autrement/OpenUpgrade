@@ -68,6 +68,9 @@ def cleanup_modules(cr):
             # from OCA/account-financial-tools - Features changed
             ('account_move_line_no_default_search', 'account'),
             ('account_tax_chart_interval', 'account'),
+            # from OCA/account_payment
+            ('account_payment_term_multi_day',
+             'account_payment_term_extension'),
             # from OCA/server-tools - features included now in core
             ('base_concurrency', 'base'),
             ('base_debug4all', 'base'),
@@ -76,6 +79,8 @@ def cleanup_modules(cr):
             # from OCA/social - included in core
             ('website_mail_snippet_table_edit', 'mass_mailing'),
             ('mass_mailing_sending_queue', 'mass_mailing'),
+            ('website_mail_snippet_bg_color',
+             'web_editor_background_color'), # this one now located in OCA/web
             # from OCA/crm - included in core
             ('crm_lead_lost_reason', 'crm'),
             # from OCA/sale-workflow - included in core
@@ -85,6 +90,7 @@ def cleanup_modules(cr):
             # from OCA/website
             ('website_event_register_free', 'website_event'),
             ('website_event_register_free_with_sale', 'website_event_sale'),
+            ('website_sale_collapse_categories', 'website_sale'),
         ], merge_modules=True,
     )
 
