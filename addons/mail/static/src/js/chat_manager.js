@@ -211,6 +211,9 @@ function make_message (data) {
         res_id: data.res_id,
         url: session.url("/mail/view?message_id=" + data.id),
     };
+    // Well, Odoo has nicely stripped all data we managed to include in our
+    // RPC reply.  We need our data!!!
+    msg.merchise_extra = data;
 
     _.each(_.keys(emoji_substitutions), function (key) {
         var escaped_key = String(key).replace(/([.*+?=^!:${}()|[\]\/\\])/g, '\\$1');
@@ -287,13 +290,21 @@ function make_message (data) {
     // can not be done in preprocess, since it alter the original value
     if (msg.tracking_value_ids && msg.tracking_value_ids.length) {
         _.each(msg.tracking_value_ids, function(f) {
-            if (_.contains(['date', 'datetime'], f.field_type)) {
-                var format = (f.field_type === 'date') ? 'LL' : 'LLL';
+            if (f.field_type === 'datetime') {
+                var format = 'LLL';
                 if (f.old_value) {
                     f.old_value = moment.utc(f.old_value).local().format(format);
                 }
                 if (f.new_value) {
                     f.new_value = moment.utc(f.new_value).local().format(format);
+                }
+            } else if (f.field_type === 'date') {
+                var format = 'LL';
+                if (f.old_value) {
+                    f.old_value = moment(f.old_value).local().format(format);
+                }
+                if (f.new_value) {
+                    f.new_value = moment(f.new_value).local().format(format);
                 }
             }
         });

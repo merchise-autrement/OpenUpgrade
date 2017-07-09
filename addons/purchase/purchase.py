@@ -477,7 +477,10 @@ class PurchaseOrderLine(models.Model):
             for inv_line in line.invoice_lines:
                 if inv_line.invoice_id.state not in ['cancel']:
                     try:
-                        qty += inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
+                        if inv_line.invoice_id.type == 'in_invoice':
+                            qty += inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
+                        elif inv_line.invoice_id.type == 'in_refund':
+                            qty -= inv_line.uom_id._compute_qty_obj(inv_line.uom_id, inv_line.quantity, line.product_uom)
                     except:
                         print(
                             'Line', line,
