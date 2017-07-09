@@ -13,8 +13,8 @@ import openerp
 import openerp.osv as osv
 import openerp.tools as tools
 import openerp.tools.osutil as osutil
-from openerp.tools.safe_eval import safe_eval as eval
 from openerp.tools.translate import _
+from openerp.tools.safe_eval import safe_eval
 
 import zipfile
 import openerp.release as release
@@ -90,7 +90,7 @@ class Graph(dict):
         forced_deps = tools.config.get_misc('openupgrade',
                                             'force_deps_' + release.version,
                                             forced_deps)
-        forced_deps = tools.safe_eval(forced_deps)
+        forced_deps = safe_eval(forced_deps)
 
         for module in module_list:
             # This will raise an exception if no/unreadable descriptor file.
