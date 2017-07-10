@@ -3,26 +3,14 @@
 
 """ Modules dependency graph. """
 
-import os, sys, imp
-from os.path import join as opj
 import itertools
-import zipimport
 
 import openerp
 
-import openerp.osv as osv
 import openerp.tools as tools
-import openerp.tools.osutil as osutil
-from openerp.tools.translate import _
 from openerp.tools.safe_eval import safe_eval
 
-import zipfile
 import openerp.release as release
-
-import re
-import base64
-from zipfile import PyZipFile, ZIP_DEFLATED
-from cStringIO import StringIO
 
 import logging
 
