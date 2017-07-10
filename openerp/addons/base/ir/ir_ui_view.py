@@ -100,7 +100,7 @@ def get_view_arch_from_file(filename, xmlid):
         if n.tag in ('template', 'record'):
             node = n
             break
-    if node is None:  
+    if node is None:
         # fallback search on template with implicit module name
         for n in doc.xpath('//*[@id="%s"]' % (xmlid.split('.')[1])):
             if n.tag in ('template', 'record'):
@@ -484,11 +484,11 @@ class view(osv.osv):
         view = self.browse(cr, uid, view_id, context)
         not_avail = _('n/a')
         message = ("%(msg)s\n\n" +
-                   _("Error context:\nView `%(view_name)s`") + 
+                   _("Error context:\nView `%(view_name)s`") +
                    "\n[view_id: %(viewid)s, xml_id: %(xmlid)s, "
                    "model: %(model)s, parent_id: %(parent)s]") % \
                         {
-                          'view_name': view.name or not_avail, 
+                          'view_name': view.name or not_avail,
                           'viewid': view_id or not_avail,
                           'xmlid': view.xml_id or not_avail,
                           'model': view.model or not_avail,
@@ -706,7 +706,7 @@ class view(osv.osv):
     #------------------------------------------------------
     # Postprocessing: translation, groups and modifiers
     #------------------------------------------------------
-    # TODO: 
+    # TODO:
     # - remove group processing from ir_qweb
     #------------------------------------------------------
     def postprocess(self, cr, user, model, node, view_id, in_tree_view, model_fields, context=None):

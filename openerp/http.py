@@ -65,7 +65,6 @@ STATIC_CACHE = DAYS(365)
 COOKIE_MAX_AGE = DAYS(90)
 
 
-
 class _AccelMixin(object):
     '''A mixin for classes with an :attr:`~BaseResponse.environ` attribute
     that tests for SPDY/HTTP2 proxies/accelerators.
