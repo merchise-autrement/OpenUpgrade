@@ -496,6 +496,10 @@ class view(osv.osv):
                           'msg': message,
                         }
         _logger.info(message)
+        _logger.info(
+            'OPENUPGRADE: If everything works, we are still updating '
+            'the view!'
+        )
         # OpenUpgrade we want to ignore view errors
         # raise AttributeError(message)
 
