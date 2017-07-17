@@ -110,7 +110,7 @@ missing in the new release are marked with |del|.
 +----------------------------------------+------------------------------------------+
 |base_import_module                      | Nothing to do                            |
 +----------------------------------------+------------------------------------------+
-| |del| base_report_designer             |                                          |
+| |del| base_report_designer             | Moved to odoo/odoo-extra                 |
 +----------------------------------------+------------------------------------------+
 |base_setup                              | Nothing to do                            |
 +----------------------------------------+------------------------------------------+
@@ -124,7 +124,7 @@ missing in the new release are marked with |del|.
 +----------------------------------------+------------------------------------------+
 |claim_from_delivery                     | Nothing to do                            |
 +----------------------------------------+------------------------------------------+
-| |del| contacts                         |                                          |
+| |del| contacts                         | Done (merged in mail)                    |
 +----------------------------------------+------------------------------------------+
 |crm                                     | Done                                     |
 +----------------------------------------+------------------------------------------+
@@ -136,7 +136,7 @@ missing in the new release are marked with |del|.
 +----------------------------------------+------------------------------------------+
 |crm_partner_assign                      |                                          |
 +----------------------------------------+------------------------------------------+
-| |del| crm_profiling                    |                                          |
+| |del| crm_profiling                    | Moved to odoo/odoo-extra                 |
 +----------------------------------------+------------------------------------------+
 |crm_project_issue                       |                                          |
 +----------------------------------------+------------------------------------------+
@@ -148,7 +148,7 @@ missing in the new release are marked with |del|.
 +----------------------------------------+------------------------------------------+
 | |del| edi                              |                                          |
 +----------------------------------------+------------------------------------------+
-| |del| email_template                   |                                          |
+| |del| email_template                   | Done (merged in mail as mail_template)   |
 +----------------------------------------+------------------------------------------+
 |event                                   | Done                                     |
 +----------------------------------------+------------------------------------------+
@@ -216,7 +216,7 @@ missing in the new release are marked with |del|.
 +----------------------------------------+------------------------------------------+
 |im_odoo_support                         |                                          |
 +----------------------------------------+------------------------------------------+
-| |del| knowledge                        |                                          |
+| |del| knowledge                        |  Moved to OCA  [#knowledge]_             |
 +----------------------------------------+------------------------------------------+
 |l10n_ae                                 |                                          |
 +----------------------------------------+------------------------------------------+
@@ -673,6 +673,9 @@ missing in the new release are marked with |del|.
 .. [#account_payment] 'Account Payment' Module is now under Odoo Community Association Umbrella
     as 'Account Payment Order' (not exactly the same but does the same and needs bank-payment):
     See : https://github.com/OCA/bank-payment/tree/9.0/account_payment_order
+
+.. [#knowledge] 'Knowledge' Module is now under Community Association Umbrella:
+    See : https://github.com/OCA/knowledge/tree/9.0/knowledge
 
 .. [#purchase_analytic_plans] 'Purchase Analytic Plans' Module is now under Odoo Community Association Umbrella
     as 'Purchase Analytic Distribution' (not exactly the same but does the same):
