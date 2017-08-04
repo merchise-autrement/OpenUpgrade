@@ -96,12 +96,15 @@ def cleanup_modules(cr):
             ('sale_order_back2draft', 'sale'),
             ('partner_prepayment', 'sale_delivery_block'),
             ('sale_fiscal_position_update', 'sale'),
+            ('sale_documents_comments', 'sale_comment_propagation'),
             # from OCA/bank-payment
             ('account_payment_sale_stock', 'account_payment_sale'),
             # from OCA/website
             ('website_event_register_free', 'website_event'),
             ('website_event_register_free_with_sale', 'website_event_sale'),
             ('website_sale_collapse_categories', 'website_sale'),
+            # OCA/reporting-engine
+            ('report_xls', 'report_xlsx'),
         ], merge_modules=True,
     )
 
