@@ -53,6 +53,9 @@ renamed_modules = {
     # OCA/manufacture-reporting
     'mrp_bom_structure_xls': 'mrp_bom_structure_xlsx',
     'mrp_bom_structure_xls_level_1': 'mrp_bom_structure_xlsx_level_1',
+    # OCA/l10n-spain
+    'l10n_es_fiscal_year_closing': 'l10n_es_account_fiscal_year_closing',
+    'account_balance_reporting_xls': 'account_balance_reporting_xlsx',
 }
 
 renamed_models = {
