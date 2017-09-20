@@ -18,6 +18,6 @@ Ask your functional question directly to the Odoo Operators with the livechat su
     ],
     'depends' : ["web", "mail"],
     'installable': True,
-    'auto_install': True,
+    'auto_install': False,
     'application': False,
 }
