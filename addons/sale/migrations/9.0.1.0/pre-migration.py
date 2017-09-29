@@ -59,14 +59,15 @@ def map_order_state(cr):
 def prepopulate_fields(cr):
     """ Recomputing a fields will be very expensive via the ORM, so do it
     here for fields where the computation is trivial"""
-    cr.execute('alter table sale_order_line add column qty_invoiced numeric')
+    cr.execute('alter table sale_order_line add column qty_invoiced numeric default 0')
     cr.execute(
         """\
         with line2qty_invoiced(id, qty_invoiced) as (
             select l.id, sum(
                 case
-                    when i.type='out_invoice' then il.quantity
-                    when i.type='out_refund' then -il.quantity
+                    when i.state != 'cancel' and i.type='out_invoice' then il.quantity
+                    when i.state != 'cancel' and i.type='out_refund' then -il.quantity
+                    else 0
                 end * uom_invoice.factor / uom_sale.factor
             ) s
             from sale_order_line l
@@ -97,8 +98,7 @@ def prepopulate_fields(cr):
         from sale_order o join product_pricelist p on o.pricelist_id=p.id
         where l.order_id=o.id
         """)
-    cr.execute('alter table sale_order_line add column invoice_status varchar')
-    cr.execute("update sale_order_line set invoice_status='no'")
+    cr.execute('alter table sale_order_line add column invoice_status varchar default %s', ('no', ))
     cr.execute(
         """\
         update sale_order_line
@@ -108,8 +108,7 @@ def prepopulate_fields(cr):
         )
         where state in ('sale', 'done')
         """)
-    cr.execute('alter table sale_order add column invoice_status varchar')
-    cr.execute("update sale_order set invoice_status='no'")
+    cr.execute('alter table sale_order add column invoice_status varchar default %s', ('no', ))
     cr.execute(
         """\
         update sale_order o
