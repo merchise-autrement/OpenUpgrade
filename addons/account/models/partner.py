@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from ast import literal_eval
 from operator import itemgetter
 import time
 
@@ -364,7 +365,7 @@ class ResPartner(models.Model):
     @api.multi
     def mark_as_reconciled(self):
         self.env['account.partial.reconcile'].check_access_rights('write')
-        return self.sudo().write({'last_time_entries_checked': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
+        return self.sudo().with_context(company_id=self.env.user.company_id.id).write({'last_time_entries_checked': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)})
 
     @api.one
     def _get_company_currency(self):
@@ -442,7 +443,7 @@ class ResPartner(models.Model):
         '''
         This function returns an action that display invoices/refunds made for the given partners.
         '''
-        action = self.env.ref('account.action_invoice_refund_out_tree')
-        result = action.read()[0]
-        result['domain'] = [('partner_id', 'child_of', self.ids)]
-        return result
+        action = self.env.ref('account.action_invoice_refund_out_tree').read()[0]
+        action['domain'] = literal_eval(action['domain'])
+        action['domain'].append(('partner_id', 'child_of', self.ids))
+        return action
