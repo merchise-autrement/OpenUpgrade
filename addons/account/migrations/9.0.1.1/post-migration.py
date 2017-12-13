@@ -5,8 +5,17 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 import operator
-from openupgradelib import openupgrade
+from openupgradelib import openupgrade, openupgrade_90
 from openerp.modules.registry import RegistryManager
+from psycopg2.extensions import AsIs
+
+
+account_type_map = [
+    ('account.data_account_type_cash', 'account.data_account_type_liquidity'),
+    ('account.conf_account_type_chk', 'account.data_account_type_liquidity'),
+    ('account.conf_account_type_tax',
+     'account.data_account_type_current_liabilities'),
+]
 
 
 def map_bank_state(cr):
@@ -199,21 +208,34 @@ def cashbox(cr):
     )
     # assign those to the cashbox lines they derive from
     cr.execute(
-        'update account_cashbox_line l set cashbox_id='
-        '(select id from account_bank_statement_cashbox where l.id='
-        'any(%(cashbox_line_ids)s))' % {
+        'update account_cashbox_line l set cashbox_id=cb.id '
+        'from (select id, openupgrade_legacy_9_0_cashbox_line_ids from '
+        'account_bank_statement_cashbox) cb '
+        'where l.id=any(%(cashbox_line_ids)s)' % {
             'cashbox_line_ids': openupgrade.get_legacy_name('cashbox_line_ids')
         }
     )
-    # and now assign the proper cashbox_{start,end}_id values
+    # and now assign the proper cashbox_start_id values
     cr.execute(
-        'update account_bank_statement s set '
-        'cashbox_start_id=(select cashbox_id from account_cashbox_line where '
-        '%(bank_statement_id)s=s.id and %(number_closing)s is null limit 1),'
-        'cashbox_end_id=(select cashbox_id from account_cashbox_line where '
-        '%(bank_statement_id)s=s.id and %(number_opening)s is null limit 1)' %
+        'update account_bank_statement s '
+        'set cashbox_start_id=cbl.cashbox_id '
+        'from (select cashbox_id, %(bank_statement_id)s,  '
+        '%(number_closing)s from account_cashbox_line) cbl '
+        'where s.id=cbl.%(bank_statement_id)s and %(number_closing)s is null' %
         {
             'number_closing': openupgrade.get_legacy_name('number_closing'),
+            'bank_statement_id':
+            openupgrade.get_legacy_name('bank_statement_id'),
+        }
+    )
+
+    # and now assign the proper cashbox_end_id values
+    cr.execute(
+        'update account_bank_statement s set cashbox_end_id=cbl.cashbox_id '
+        'from (select cashbox_id, %(bank_statement_id)s, %(number_opening)s '
+        ' from account_cashbox_line) cbl '
+        'where s.id=cbl.%(bank_statement_id)s and %(number_opening)s is null' %
+        {
             'number_opening': openupgrade.get_legacy_name('number_opening'),
             'bank_statement_id':
             openupgrade.get_legacy_name('bank_statement_id'),
@@ -224,20 +246,48 @@ def cashbox(cr):
 def account_properties(cr):
     # Handle account properties as their names are changed.
     cr.execute("""
-            update ir_property set name = 'property_account_payable_id',
-            fields_id = (select id from ir_model_fields where model
-            = 'res.partner' and name = 'property_account_payable_id')
+        update ir_property set name = 'property_account_payable_id',
+            fields_id = f.id
+        from (select id from ir_model_fields where model
+            = 'res.partner' and name = 'property_account_payable_id') f
             where name = 'property_account_payable' and (res_id like
             'res.partner%' or res_id is null)
-            """)
+           """)
     cr.execute("""
-            update ir_property set fields_id = (select id from
+            update ir_property set name = 'property_account_receivable_id',
+            fields_id = f.id
+            from (select id from
             ir_model_fields where model = 'res.partner' and
-            name = 'property_account_receivable_id'), name =
-            'property_account_receivable_id' where
+            name = 'property_account_receivable_id') f  where
             name = 'property_account_receivable' and (res_id like
             'res.partner%' or res_id is null)
             """)
+
+
+def move_view_accounts(env):
+    """Move accounts of type view to another table, but removing them from the
+    main list for not disturbing normal accounting.
+    """
+    openupgrade.logged_query(
+        env.cr, """
+        CREATE TABLE %s
+        AS SELECT * FROM account_account
+        WHERE %s = 'view'""", (
+            AsIs(openupgrade.get_legacy_name('account_account')),
+            AsIs(openupgrade.get_legacy_name('type')),
+        )
+    )
+    # Remove constraint that delete in cascade children accounts
+    openupgrade.logged_query(
+        env.cr, """
+        ALTER TABLE account_account
+        DROP CONSTRAINT account_account_parent_id_fkey"""
+    )
+    openupgrade.logged_query(
+        env.cr, """
+        DELETE FROM account_account
+        WHERE %s = 'view'""", (AsIs(openupgrade.get_legacy_name('type')),)
+    )
 
 
 def account_internal_type(env):
@@ -319,6 +369,31 @@ def map_account_tax_template_type(cr):
         openupgrade.get_legacy_name('type'), 'amount_type',
         [('code', 'code')],
         table='account_tax_template', write='sql')
+
+
+def migrate_account_sequence_fiscalyear(cr):
+    """ Migrate subsequences from fiscalyears to sequence date ranges
+    so that the next number is aligned with the last assigned number """
+    openupgrade.logged_query(
+        cr,
+        """ \
+        INSERT into ir_sequence_date_range
+        (sequence_id, date_from, date_to, number_next)
+        SELECT sequence_main_id, af.date_start, af.date_stop,
+            irs.number_next
+        FROM account_sequence_fiscalyear asf,
+            account_fiscalyear af, ir_sequence irs
+        WHERE asf.fiscalyear_id = af.id
+             and asf.sequence_id = irs.id; """)
+    openupgrade.logged_query(
+        cr,
+        """ \
+        UPDATE ir_sequence SET
+            prefix = REPLACE(prefix, '%%(year)s', '%%(range_year)s'),
+            suffix = REPLACE(suffix, '%%(year)s', '%%(range_year)s'),
+            use_date_range = TRUE
+        WHERE id IN (SELECT sequence_id FROM ir_sequence_date_range)
+        """)
 
 
 def migrate_account_auto_fy_sequence(env):
@@ -864,6 +939,7 @@ def migrate(env, version):
     map_type_tax_use(cr)
     map_type_tax_use_template(cr)
     map_journal_state(cr)
+    openupgrade_90.replace_account_types(env, account_type_map)
     account_templates(env)
     parent_id_to_m2m(cr)
     cashbox(cr)
@@ -941,9 +1017,11 @@ def migrate(env, version):
 
     parent_id_to_tag(env, 'account.tax')
     parent_id_to_tag(env, 'account.account', recursive=True)
+    move_view_accounts(env)
     account_internal_type(env)
     map_account_tax_type(cr)
     map_account_tax_template_type(cr)
+    migrate_account_sequence_fiscalyear(cr)
     migrate_account_auto_fy_sequence(env)
     fill_move_taxes(env)
     fill_blacklisted_fields(cr)
