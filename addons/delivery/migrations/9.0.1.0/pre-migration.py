@@ -83,9 +83,26 @@ def correct_rule_prices(cr):
     )
 
 
+def fill_missing_delivery_grid_records(cr):
+    """Add records for delivery carriers without grid for keeping integrity."""
+    openupgrade.logged_query(
+        cr, """
+        INSERT INTO delivery_grid
+        (create_uid, create_date, name, sequence, carrier_id,
+         write_uid, active, write_date)
+        SELECT
+            dc.create_uid, dc.create_date, dc.name, 1, dc.id,
+            dc.write_uid, dc.active, dc.write_date
+        FROM delivery_carrier dc
+        LEFT JOIN delivery_grid dg ON dg.carrier_id = dc.id
+        WHERE dg.id IS NULL"""
+    )
+
+
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
     cr = env.cr
+    fill_missing_delivery_grid_records(cr)
     correct_object_references(cr)
     openupgrade.rename_columns(cr, column_renames)
     openupgrade.rename_fields(env, field_renames)
