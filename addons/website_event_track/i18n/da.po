@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Odoo 9.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-18 08:12+0000\n"
-"PO-Revision-Date: 2017-05-18 10:03+0000\n"
+"PO-Revision-Date: 2017-11-29 12:43+0000\n"
 "Last-Translator: Morten Schou <ms@msteknik.dk>\n"
 "Language-Team: Danish (http://www.transifex.com/odoo/odoo-9/language/da/)\n"
 "MIME-Version: 1.0\n"
@@ -20,19 +20,19 @@ msgstr ""
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_event_count_sponsor
 msgid "# Sponsors"
-msgstr ""
+msgstr "# af sponsorer"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.track_view
 msgid "<b>Date</b><br/>"
-msgstr ""
+msgstr "<b>Dato</b><br/>"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.track_view
 msgid ""
 "<br/>\n"
 "                            <b>Duration</b><br/>"
-msgstr ""
+msgstr "<br/>\n                            <b>Varighed</b><br/>"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.track_view
@@ -56,7 +56,7 @@ msgstr ""
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_social
 msgid "<strong>Participate on Twitter</strong>"
-msgstr ""
+msgstr "<strong>Deltag på Twitter</strong>"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal
@@ -118,7 +118,7 @@ msgstr ""
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal
 msgid "Application"
-msgstr ""
+msgstr "App"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_event_allowed_track_tag_ids
@@ -247,7 +247,7 @@ msgstr ""
 #: model:ir.ui.view,arch_db:website_event_track.view_event_location_form
 #: model:ir.ui.view,arch_db:website_event_track.view_event_location_tree
 msgid "Event Location"
-msgstr ""
+msgstr "Arrangementslokation"
 
 #. module: website_event_track
 #: model:ir.actions.act_window,name:website_event_track.action_event_track_location
@@ -342,7 +342,7 @@ msgstr "Høj"
 #. module: website_event_track
 #: selection:event.track,priority:0
 msgid "Highest"
-msgstr ""
+msgstr "Højeste"
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_track18
@@ -405,7 +405,7 @@ msgstr "Billede"
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal
 msgid "Introduction"
-msgstr ""
+msgstr "Introduktion"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track_message_is_follower
@@ -559,7 +559,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:website_event_track.field_event_event_show_blog
 #, python-format
 msgid "News"
-msgstr ""
+msgstr "Nyheder"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.tracks
@@ -645,7 +645,7 @@ msgstr "Prioritet"
 #. module: website_event_track
 #: selection:event.track,state:0
 msgid "Proposal"
-msgstr ""
+msgstr "Forslag"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal
@@ -667,7 +667,7 @@ msgstr ""
 #. module: website_event_track
 #: selection:event.track,state:0
 msgid "Published"
-msgstr ""
+msgstr "Udgiv"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.track_view
@@ -723,7 +723,7 @@ msgstr "Sølv"
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_social
 msgid "Social Stream"
-msgstr ""
+msgstr "Sociale medier"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal
@@ -817,7 +817,7 @@ msgstr "Tags"
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal
 #, python-format
 msgid "Talk Introduction"
-msgstr ""
+msgstr "Introduktion"
 
 #. module: website_event_track
 #: code:addons/website_event_track/models/event.py:186
@@ -854,7 +854,7 @@ msgstr ""
 #. module: website_event_track
 #: model:ir.model.fields,help:website_event_track.field_event_track_website_url
 msgid "The full URL to access the document through the website."
-msgstr ""
+msgstr "Den fulde URL for at få adgang til dokumentet via hjemmesiden."
 
 #. module: website_event_track
 #: model:event.track,name:website_event_track.event_track29
@@ -1011,17 +1011,17 @@ msgstr "Website kommunikations historik"
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track_website_meta_description
 msgid "Website meta description"
-msgstr ""
+msgstr "Meta beskrivelse"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track_website_meta_keywords
 msgid "Website meta keywords"
-msgstr ""
+msgstr "Meta keywords"
 
 #. module: website_event_track
 #: model:ir.model.fields,field_description:website_event_track.field_event_track_website_meta_title
 msgid "Website meta title"
-msgstr ""
+msgstr "Meta title"
 
 #. module: website_event_track
 #: model:ir.ui.view,arch_db:website_event_track.event_track_proposal

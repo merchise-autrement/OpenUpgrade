@@ -19,6 +19,57 @@ var editor = eventHandler.modules.editor;
 var renderer = $.summernote.renderer;
 var options = $.summernote.options;
 
+// Browser-unify execCommand
+var oldJustify = {};
+_.each(['Left', 'Right', 'Full', 'Center'], function (align) {
+    oldJustify[align] = editor['justify' + align];
+    editor['justify' + align] = function ($editable, value) {
+        // Before calling the standard function, check all elements which have
+        // an 'align' attribute and mark them with their value
+        var $align = $editable.find('[align]');
+        _.each($align, function (el) {
+            var $el = $(el);
+            $el.data('__align', $el.attr('align'));
+        });
+
+        // Call the standard function
+        oldJustify[align].apply(this, arguments);
+
+        // Then:
+
+        // Remove the text-align of elements which lost the 'align' attribute
+        var $newAlign = $editable.find('[align]');
+        $align.not($newAlign).css('text-align', '');
+
+        // Transform the 'align' attribute into the 'text-align' css
+        // property for elements which received the 'align' attribute or whose
+        // 'align' attribute changed
+        _.each($newAlign, function (el) {
+            var $el = $(el);
+
+            var oldAlignValue = $align.data('__align');
+            var alignValue = $el.attr('align');
+            if (oldAlignValue === alignValue) {
+                // If the element already had an 'align' attribute and that it
+                // did not changed, do nothing (compatibility)
+                return;
+            }
+
+            $el.removeAttr('align');
+            $el.css('text-align', alignValue);
+
+            // Note the first step (removing the text-align of elemnts which
+            // lost the 'align' attribute) is kinda the same as this one, but
+            // this one handles the elements which have been edited with chrome
+            // or with this new system
+            $el.find('*').css('text-align', '');
+        });
+
+        // Unmark the elements
+        $align.removeData('__align');
+    };
+});
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Add method to Summernote*/
 
@@ -550,6 +601,13 @@ dom.removeBetween = function (sc, so, ec, eo, towrite) {
         so = 0;
         eo = 1;
     }
+
+    var parentNode = sc && sc.parentNode;
+    if (parentNode && sc.tagName === 'BR') {
+        sc = parentNode;
+        ec = parentNode;
+    }
+
     return {
         sc: sc,
         so: so,
@@ -1164,9 +1222,9 @@ $.summernote.pluginEvents.visible = function (event, editor, layoutInfo) {
     if (!r) return;
 
     if (!r.isCollapsed()) {
-        if (dom.isCell(dom.node(r.sc)) || dom.isCell(dom.node(r.ec))) {
+        if ((dom.isCell(dom.node(r.sc)) || dom.isCell(dom.node(r.ec))) && dom.node(r.sc) !== dom.node(r.ec)) {
             remove_table_content(r);
-            r = range.create(r.ec, 0).select();
+            r = range.create(r.ec, 0);
         } else {
             r = r.deleteContents(true);
         }
