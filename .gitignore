@@ -4,6 +4,7 @@ _build/
 # dotfiles
 .*
 !.travis
+!.gitlab-ci.yml
 !.gitignore
 !.mailmap
 # compiled python files

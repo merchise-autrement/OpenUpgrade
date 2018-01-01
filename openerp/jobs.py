@@ -32,10 +32,6 @@ logger = logging.getLogger(__name__)
 del logging
 
 from xoutil.context import context as ExecutionContext
-try:
-    from xoutil.cl.ids import str_uuid as new_uuid
-except ImportError:
-    from xoutil.uuid import uuid as new_uuid
 
 from kombu import Exchange, Queue
 
@@ -242,7 +238,7 @@ def until_timeout(iterator, on_timeout=None):
                        iteration because of a SoftTimeLimitExceeded error.
 
     Although you may call `until_timeout`:func: inside another call to
-    `until_timeout`:func: we strongly advice againts it.
+    `until_timeout`:func: we strongly advice against it.
 
     In a iterator pattern like::
 
@@ -255,7 +251,7 @@ def until_timeout(iterator, on_timeout=None):
     patterns the behaviour is well established: only the instances enclosing
     the point where the exceptions happens will be called its timeout.
 
-    However in tree-like structures an automatic 'linearzation' of the tree
+    However in tree-like structures an automatic 'linearisation' of the tree
     nodes is performed and as such, a timeout in one branch of the tree may be
     signaled to the other branch.
 
@@ -689,10 +685,7 @@ def _extract_signature(args, kwargs):
     '''Detect the proper signature.
 
     '''
-    try:
-        from xoutil.symbols import Unset
-    except ImportError:
-        from xoutil import Unset
+    from xoutil.symbols import Unset
     from openerp.models import BaseModel
     from openerp.sql_db import Cursor
     from openerp.tools import frozendict
@@ -753,9 +746,10 @@ def task(self, model, ids, methodname, dbname, uid, args, kwargs,
     Retries are scheduled with a minimum delay of 300ms.
 
     '''
-    if job_uuid is Unset:
-        job_uuid = self.request.id if self.request.id else new_uuid()
     from openerp.models import BaseModel
+    if job_uuid is Unset:
+        from uuid import uuid1
+        job_uuid = self.request.id if self.request.id else str(uuid1())
     context = kwargs.pop('context', None)
     try:
         with MaybeRecords(dbname, uid, model, ids, context=context) as r:
@@ -774,6 +768,13 @@ def task(self, model, ids, methodname, dbname, uid, args, kwargs,
                 raise TypeError(
                     'Invalid method name %r for model %r' % (methodname, model)
                 )
+    except SoftTimeLimitExceeded as e:
+        # Well, SoftTimeLimitExceeded may occur anywhere in the code.  It's
+        # really a signal.  When integrating with `sentrylog`, I think the
+        # best option is collect this events per job: ``(model, methodname)``.
+        e._sentry_fingerprint = [type(e), model, methodname]
+        _report_current_failure(dbname, uid, job_uuid, e)
+        raise e
     except OperationalError as error:
         if error.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
             _report_current_failure(dbname, uid, job_uuid, error)

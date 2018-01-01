@@ -48,6 +48,7 @@ from . import api
 from . import tools
 from .api import Environment
 from .exceptions import AccessError, MissingError, ValidationError, UserError
+from .exceptions import ExpectedSingletonError
 from .osv import fields
 from .osv.query import Query
 from .tools import frozendict, lazy_property, ormcache, Collector
@@ -1309,7 +1310,9 @@ class BaseModel(object):
                 valid = names and not (set(names) & field_names)
                 valid = valid or fun(self._model, cr, uid, ids)
                 extra_error = None
-            except Exception, e:
+            except SoftTimeLimitExceeded:
+                raise
+            except Exception as e:
                 _logger.debug('Exception while validating constraint', exc_info=True)
                 valid = False
                 extra_error = tools.ustr(e)
@@ -5485,7 +5488,7 @@ class BaseModel(object):
         """
         if len(self) == 1:
             return self
-        raise ValueError("Expected singleton: %s" % self)
+        raise ExpectedSingletonError("Expected singleton", self)
 
     def with_env(self, env):
         """ Returns a new version of this recordset attached to the provided
@@ -5765,7 +5768,7 @@ class BaseModel(object):
                 filename, lineno = frame_codeinfo(currentframe(), 1)
                 _logger.warning("Comparing apples and oranges: %r == %r (%s:%s)",
                                 self, other, filename, lineno)
-            return False
+            return NotImplemented
         return self._name == other._name and set(self._ids) == set(other._ids)
 
     def __ne__(self, other):

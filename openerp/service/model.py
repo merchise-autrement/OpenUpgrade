@@ -14,10 +14,7 @@ from openerp.tools.translate import _
 
 import security
 
-try:
-    from xoutil.future.string import safe_encode
-except ImportError:
-    from xoutil.string import safe_encode
+from xoutil.future.codecs import safe_encode
 
 _logger = logging.getLogger(__name__)
 
@@ -138,7 +135,14 @@ def check(f):
                     raise
                 wait_time = random.uniform(0.0, 2 ** tries)
                 tries += 1
-                _logger.warn("%s, retry %d/%d in %.04f sec..." % (errorcodes.lookup(e.pgcode), tries, MAX_TRIES_ON_CONCURRENCY_FAILURE, wait_time))
+                if tries > 3:
+                    _logger.warn(
+                        "%s, retry %d/%d in %.04f sec...",
+                        errorcodes.lookup(e.pgcode),
+                        tries,
+                        MAX_TRIES_ON_CONCURRENCY_FAILURE,
+                        wait_time
+                    )
                 time.sleep(wait_time)
             except IntegrityError, inst:
                 registry = openerp.registry(dbname)
