@@ -107,12 +107,22 @@ def create_voucher_line_tax_lines(env):
         "where v.tax_id is not null")
 
 
+def pass_messaging_from_voucher_to_payments(env):
+    """Pass the voucher messages to the respective payments."""
+    env.cr.execute(
+        "UPDATE mail_message SET model='account.payment' "
+        "WHERE id in (SELECT mm.id FROM mail_message mm "
+        "INNER JOIN account_payment ap on ap.id = mm.res_id "
+        "WHERE mm.model = 'account.voucher')"
+    )
+
+
 @openupgrade.migrate(use_env=True)
 def migrate(env, version):
     """Control function for account_voucher migration."""
     create_payments_from_vouchers(env)
     create_voucher_line_tax_lines(env)
-
+    pass_messaging_from_voucher_to_payments(env)
     if 'price_subtotal' in account_voucher_line._openupgrade_recompute_fields_blacklist:
         # This means we have no taxes and we can update the price_subtotal
         # quite simply.
