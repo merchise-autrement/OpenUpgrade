@@ -110,10 +110,13 @@ def create_voucher_line_tax_lines(env):
 def pass_messaging_from_voucher_to_payments(env):
     """Pass the voucher messages to the respective payments."""
     env.cr.execute(
-        "UPDATE mail_message SET model='account.payment' "
-        "WHERE id in (SELECT mm.id FROM mail_message mm "
-        "INNER JOIN account_payment ap on ap.id = mm.res_id "
-        "WHERE mm.model = 'account.voucher')"
+        """
+        UPDATE mail_message SET model='account.payment'
+        WHERE id in (SELECT mm.id
+                         FROM mail_message mm INNER JOIN account_payment ap
+                           ON ap.id = mm.res_id
+                     WHERE mm.model = 'account.voucher')
+        """
     )
 
 
