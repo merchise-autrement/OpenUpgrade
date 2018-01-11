@@ -29,7 +29,32 @@ def create_and_populate_department(cr):
     ''')
 
 
+def create_and_populate_children(cr):
+    cr.execute('''
+    ALTER TABLE project_task ADD COLUMN parent_id INT;
+
+    -- Since the parent_id is new there's no point in computing the
+    -- children_hours, they will be 0; however there's a single method
+    -- computing children_hours, effective_hours, remaining_hours,
+    -- total_hours, total_hours_spent, and delay_hours.  However, only
+    -- children_hours and total_hours_spent need recomputation.
+
+    -- These are new columns, the others existed before but created in another
+    --  addon.
+
+    ALTER TABLE project_task ADD COLUMN children_hours DOUBLE PRECISION;
+    ALTER TABLE project_task ADD COLUMN total_hours_spent DOUBLE PRECISION;
+
+    -- In _get_hours, ``task.total_hours_spent = task.effective_hours + task.children_hours``
+    -- No need to bother to add 0.
+
+    UPDATE project_task SET children_hours=0, total_hours_spent=effective_hours;
+
+    ''')
+
+
 @openupgrade.migrate()
 def migrate(env, version):
     openupgrade.rename_columns(env.cr, COLUMN_RENAMES)
     create_and_populate_department(env.cr)
+    create_and_populate_children(env.cr)
