@@ -30,7 +30,7 @@ def create_and_populate_department(cr):
 
 
 def create_and_populate_children(cr):
-    cr.execute('''
+    openupgrade.logged_query(cr, '''
     ALTER TABLE project_task ADD COLUMN parent_id INT;
 
     -- Since the parent_id is new there's no point in computing the
