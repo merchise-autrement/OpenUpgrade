@@ -32,8 +32,8 @@ def map_base(cr):
         UPDATE product_pricelist_item ppi
         SET base = ppt.field
         FROM product_price_type AS ppt
-        WHERE ppt.id = %(base)s
-        AND ppt.field in ('list_price', 'standard_price')""" % {
+        WHERE ppt.id = %(base)s """ %
+        {
             'base': openupgrade.get_legacy_name('base'),
         })
 
